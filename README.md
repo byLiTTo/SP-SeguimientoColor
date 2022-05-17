@@ -147,7 +147,7 @@ disp('ARCHIVO GUARDADO');
 ___
 
 # 2. Generación de conjunto de datos
-El código que se muestra en este apartado, pertenece al script de la carpeta [02_Extraer_Representar_Datos](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/ExtraeDatosColorFondo.m).
+El código que se muestra en este apartado, pertenece al script de la carpeta: [02_Extraer_Representar_Datos](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/ExtraeDatosColorFondo.m).
 ## 2.1. Extracción de datos del color objeto de seguimiento y otros colores del fondo de la escena
 ### 2.1.1. Para cada imagen de calibración que contiene el objeto:
 Seleccionar una región de píxeles con el color de seguimiento. Almacenar los valores R, G y B de todos los píxeles seleccionados. Para ello, utilizar una matriz Matlab DatosColor, con 4 campos: identificador de la imagen, valores R, G y B.
@@ -243,15 +243,23 @@ ___
 **Planteamiento:**
 Considerar que el color de seguimiento está compuesto por todos los puntos de una determinada región del espacio RGB. Para determinar esta región pueden utilizarse diferentes estrategias. Vamos a considerar que esta región estará delimitada por superficies esféricas, cuyos centros y radios habrá que determinar para que se ajusten y contengan a todas las muestras disponibles del color de seguimiento.
 
-Para ello, como paso previo, se debe aplicar el algoritmo de agrupamiento de datos que se facilita como documentación anexa. Este algoritmo permite dividir las muestras del color de seguimiento en un número de agrupaciones igual al número de esferas que se deseen emplear.
+Para ello, como paso previo, se debe aplicar el algoritmo de agrupamiento de datos que se facilita como documentación anexa. Este algoritmo permite dividir las muestras del color de seguimiento en un número de agrupaciones igual al número de esferas que se deseen emplear. [ANEXO](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/DocumentacionAnexa.md)
 
 Este planteamiento considera que un pixel cuya componente de color RGB se encuentre contenido en una de las esferas anteriores, dada por un centro y un radio, es un píxel del color de seguimiento. Esto se puede evaluar verificando que la distancia Euclidea entre los valores RGB del píxel en cuestión y el centro de cualquier esfera sea menor que el radio de ésta.
 
 ### 3.1.1. Añadir a la representación del apartado 2.2.1 las superficies esféricas a las que hace referencia el planteamiento anterior.
+
+El código de este apartado se encuentra en la carpeta: [03_DiseñoClasificador](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/03_DiseñoClasificador/ClasificadorBasadoEsferas.m)
+
 Para ello, se deben agrupar los datos disponibles para el color de seguimiento y, para cada agrupación de datos obtenida, se determinará el centro y radios posibles de las esferas asociadas a cada agrupación. Según el objetivo perseguido, los valores de radio de las esferas que pueden ser de interés pueden calcularse de la siguiente forma:
 - Valores de radio para detectar el mayor número posible de píxeles del color objeto de seguimiento (objetivo número 1): para cada esfera, calcular todos los valores de distancia entre los valores (R, G, B) de los píxeles del color de la agrupación y el color medio (Rc, Gc, Bc). El valor de distancia máxima es el valor de radio de la esfera que contiene a todos los píxeles de la agrupación.
+<img src="imagenes/README/radio_sin_perdida.gif" width="400px"/>
+
 - Valores de radio para no detectar ruido de fondo (objetivo número 2): se debe seleccionar un valor de radio de las esferas que no contengan ruido de fondo, para lo cual habrá que medir la distancia de todos los puntos de fondo al centro de la esfera y comprobar que se sitúan fuera de la esfera.
+<img src="imagenes/README/radio_sin_ruido.gif" width="400px"/>
+
 - Valores de radio de compromiso en la detección de píxeles del objeto y ruido: pueden considerarse los valores de radio promedio de los valores obtenidos en los puntos anteriores.
+<img src="imagenes/README/radio_compromiso.gif" width="400px"/>
 
 ## 3.2. Entrenamiento del clasificador: Calibración y ajuste de parámetros.
 **Parámetros de calibración:**
