@@ -1,0 +1,126 @@
+% FASE 1: GENERACIÓN DE MATERIAL
+
+    clear
+    close all
+    clc
+
+%% OBTENCION FPS DE LA CÁMARA
+   
+    video = videoinput('winvideo',1,'YUY2_320x240');
+    video.TriggerRepeat = inf;
+    video.FrameGrabInterval = 1;
+    
+    TIEMPO = [];
+    
+    disp('ACTIVANDO cámara para cálculo de FPS');
+    start(video)
+    while video.FramesAcquired < 300
+        [I TIME] = getdata(video,1);
+        TIEMPO = [TIEMPO; TIME];
+    end
+    stop(video)
+    flushdata(video);
+    disp('APAGANDO cámara');
+    
+    % Contador donde obtendremos los FPS a los que trabaja nuestra cámara
+    camaraFPS = 0;
+    for i=1:length(TIEMPO)
+        if floor(TIEMPO(i)) == 1
+            camaraFPS = camaraFPS+1;
+        end
+    end
+    
+    % Número de FPS a los que queremos que se grabe el vídeo
+    videoFPS = 10;
+    
+    % Intervalo de captura de cada frame al que debe trabajar el vídeo,
+    % para que se grabe a la cantidad de FPS deseada
+    intervalo = camaraFPS/videoFPS;
+    
+%% GENERACIÓN DE ARCHIVO DE VÍDEO
+
+    % Nombre que le vamos a poner al archivo.avi que vamos a generar
+    nombre = '01_Color.avi';
+
+    % Duración deseada del vídeo que grabaremos
+    duracion = 30;
+    
+    % Número de frames que debemos capturar para que se cumpla la duración
+    % que hemos indicado
+    framesTotales = duracion*videoFPS;
+    
+    %video = videoinput('winvideo',1,'YUY2_320x240');
+    %video.TriggerRepeat = inf;
+    video.FrameGrabInterval = intervalo;
+    video.ReturnedColorSpace = 'rgb';
+    
+    set(video,'LoggingMode','memory');
+    
+    avi = VideoWriter(nombre,'Uncompressed AVI');
+    avi.FrameRate = videoFPS;
+    
+    frames = 0;
+    disp('....');
+    disp('ENCENDIENDO cámara para grabación de video');
+    open(avi)
+    start(video)
+    while video.FramesAcquired < framesTotales
+        I = getdata(video,1);
+        writeVideo(avi,I);
+        imshow(I),title(['Duración: ' num2str(frames/videoFPS)])
+        frames = frames+1;
+    end
+    stop(video)
+    close(avi)
+    close all;
+    disp('APAGANDO cámara');
+    
+%% LECTURA DE LAS IMÁGENES DEL VÍDEO
+
+    video = VideoReader(nombre);
+    get(video);
+    
+    % Segundo a partir del cual comenzaremos a capturar imágenes
+    inicio = 5;
+    
+    % Número de imágenes que vamos a capturar
+    numIma = 18;
+    
+    %Tamaño del salto del vector para que capruremos el número de imágenes
+    % que hemos indicado
+    salto = floor((framesTotales-(videoFPS*inicio)) / numIma);
+    
+    % Matriz donde almacenaremos todas las imágenes
+    imagenes = []; 
+    imagenes = uint8(imagenes);
+    
+    close all
+    
+    disp('....');
+    disp('CARGANDO imágenes capturadas');
+    %disp('pulse cualquier tecla para avanzar...');
+    frame = (videoFPS*inicio);
+    for i=1:(numIma-1)
+        I = read(video,frame);
+        imagenes(:,:,:,i) = I;
+        imshow(imagenes(:,:,:,i)), title(['Imagen : ' num2str(i)])
+        pause
+        frame = frame+salto;
+    end
+    
+    % Añadimos la imagen correspondiente al penúltimo frame, que es donde
+    % el objeto será de menor tamaño (según como hemos grabado los vídeos)
+    I = read(video,framesTotales-1);
+    imagenes(:,:,:,numIma) = I;
+    imshow(imagenes(:,:,:,numIma)), title(['Imagen : ' num2str(numIma)])
+    
+    %close all;
+    disp('TERMINADO de cargar imágenes');
+    
+%% GUARDADO DE LAS IMÁGENES EN PAQUETE .MAT
+    
+    disp('....');
+    disp('GUARDANDO archivo .mat');
+    save('ImagenesEntrenamiento_Calibracion.mat','imagenes');
+    disp('ARCHIVO GUARDADO');
+
