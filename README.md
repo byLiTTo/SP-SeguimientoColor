@@ -151,28 +151,84 @@ El código que se muestra en este apartado, pertenece al script de la carpeta [0
 ## 2.1. Extracción de datos del color objeto de seguimiento y otros colores del fondo de la escena
 ### 2.1.1. Para cada imagen de calibración que contiene el objeto:
 Seleccionar una región de píxeles con el color de seguimiento. Almacenar los valores R, G y B de todos los píxeles seleccionados. Para ello, utilizar una matriz Matlab DatosColor, con 4 campos: identificador de la imagen, valores R, G y B.
+````
+DatosColor = [];
+for i=(numImagFondo+1):numImag
+I = imagenes(:,:,:,i);
+
+R = I(:,:,1);
+G = I(:,:,2);
+B = I(:,:,3);
+
+ disp(['Imagen: ' num2str(i) '/' num2str(numImag)]);
+
+ROI = roipoly(I);
+
+DatosColor = [DatosColor; i*ones(sum(ROI(:)),1) R(ROI) G(ROI) B(ROI) ];
+end
+close all
+````
+<img src="imagenes/README/seleccion_color.gif"/>
+
 ### 2.1.2. Para la imagen de fondo:
 Seleccionar varias regiones de píxeles que no sean del color de seguimiento (también se pueden utilizar las imágenes que tienen el objeto, siempre que se seleccionen regiones donde no esté el objeto). Almacenar los valores R, G y B de todos los píxeles seleccionados. Para ello, utilizar una matriz Matlab DatosFondo, con 4 campos: identificador de la region, valores R, G y B.
+````
+numImagFondo = 2;
+veces = 2;
 
-AyudaMatlab:instrucción roipoly
+DatosFondo = [];
+for i=1:numImagFondo
+    for j=1:veces
+        I = imagenes(:,:,:,i);
+
+        R = I(:,:,1);
+        G = I(:,:,2);
+        B = I(:,:,3);
+
+        disp(['Imagen: ' num2str(i) '/' num2str(numImagFondo) ' Repeticion: ' num2str(j)]);
+
+        ROI = roipoly(I); 
+
+        DatosFondo = [DatosFondo; i*ones(sum(ROI(:)),1) R(ROI) G(ROI) B(ROI) ];
+    end
+end
+close all
+````
+
+<img src="imagenes/README/seleccion_fondo.gif"/>
+
+AyudaMatlab:instrucción *roipoly*
 
 ### 2.1.3. Generación de un primer conjunto de datos X e Y:
 - X: matriz de tantas filas como muestras de píxeles haya en DatosColor y DatosFondo
 y tres columnas (valores de R, G y B). Es decir, se genera concatenando verticalmente la información RGB de DatosColor y DatosFondo.
 
 - Y: vector columna con dos posibles valores: 0 y 1. El valor 0 se asignará a aquellas filas de X que se correspondan con muestras del fondo; el 1 es el valor de codificación que se utilizará para indicar que la fila de datos de X pertenece a la clase de píxeles del color de seguimiento.
+````
+X = double([DatosColor(:,2:end) ; DatosFondo(:,2:end) ]);
+Y = [ones(size(DatosColor,1),1) ; zeros(size(DatosFondo,1),1) ];
+
+save('./VariablesGeneradas/conjunto_de_datos_original_amarillo', 'X', 'Y')
+````
 
 ## 2.2. Representación de los datos del color objeto de seguimiento y otros del fondo de la escena
 ### 2.2.1. Representar en el espacio RGB:
 Con un rango de variación 0-255 en los tres ejes, todos los valores RGB de los píxeles del color de seguimiento y del fondo de la escena. En la representación, utilizar distintos colores para distinguir las dos clases consideradas: color de seguimiento, color/es de fondo.
 
+Para la representación hacemos uso de la función que hemos implementado [representa_datos_color_seguimiento_fondo(X,Y)](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/Funciones/representa_datos_color_seguimiento_fondo.m)
+
 ## 2.3. Eliminación de valores atípicos en los datos del color de seguimiento
 ### 2.3.1. Eliminar valores atípicos o outliers en las muestras de X correspondientes a los píxeles del color de seguimiento.
 Para ello, se eliminará una instancia completa de esta clase de salida (color de seguimiento) si el valor de cualquiera de sus atributos está fuera de su rango “normal” de variación. Este rango se define para cada atributo como la media más menos tres veces la desviación estándar de sus valores.
+
+Para eliminar los valores atípicos hemos creado la función: [funcion_detecta_outliers_clase_interes(X,Y)](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/Funciones/funcion_detecta_outliers_clase_interes.m)
 ### 2.3.2. Generar el conjunto de datos final X e Y:
 Sin outliers en la clase del color de seguimiento (las instancias anómalas eliminadas de X también han de eliminarse en Y).
 ### 2.3.3. Representar en el espacio RGB todos los valores RGB
 De los píxeles del color de seguimiento y del fondo de la escena del conjunto de datos final, distinguiendo las muestras del color de seguimiento y las del fondo de la escena.
+
+Las gráficas generadas en estos pasos se visualizarían de la siguiente forma:
+<img src="imagenes/README/grafica_original.gif" width="400px"/> <img src="imagenes/README/grafica_sin_outliers.gif" width="400px"/>
 
 ___
 
