@@ -48,7 +48,7 @@ videoFPS = 10;
 % para que se grabe a la cantidad de FPS deseada
 intervalo = camaraFPS/videoFPS;
 ```
-<img src="imagenes/README/1.png"/>
+<img src="imagenes/README/1.png" width="300px"/>
 
 ## 1.2. Imágenes de calibración:
 Capturar varias imágenes con el objeto situado en distintas posiciones representativas de la región del espacio que queramos monitorizar, así como una imagen representativa del fondo de la escena (sin el objeto, en la situación más parecida a las imágenes que se hicieron con el objeto).
