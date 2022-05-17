@@ -11,7 +11,7 @@ Generar una secuencia de video que muestre el seguimiento de un objeto de una es
 ___
 
 # 1. Generación de material
-El código se encuentra en el script de la carpeta [01_GeneracionMaterial](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/01_GeneracionMaterial/GeneracionMaterial.m).
+El código que se muestra en este apartado, pertenece al script de la carpeta [01_GeneracionMaterial](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/01_GeneracionMaterial/GeneracionMaterial.m).
 ## 1.1. Secuencia de video para evaluar el funcionamiento del algoritmo de seguimiento:
 Generar un archivo de video con el objeto de estudio moviéndose por una determinada región del espacio.
 
@@ -147,6 +147,7 @@ disp('ARCHIVO GUARDADO');
 ___
 
 # 2. Generación de conjunto de datos
+El código que se muestra en este apartado, pertenece al script de la carpeta [02_Extraer_Representar_Datos](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/ExtraeDatosColorFondo.m).
 ## 2.1. Extracción de datos del color objeto de seguimiento y otros colores del fondo de la escena
 ### 2.1.1. Para cada imagen de calibración que contiene el objeto:
 Seleccionar una región de píxeles con el color de seguimiento. Almacenar los valores R, G y B de todos los píxeles seleccionados. Para ello, utilizar una matriz Matlab DatosColor, con 4 campos: identificador de la imagen, valores R, G y B.
