@@ -93,6 +93,57 @@ disp('APAGANDO cámara');
 ## 1.2. Imágenes de calibración:
 Capturar varias imágenes con el objeto situado en distintas posiciones representativas de la región del espacio que queramos monitorizar, así como una imagen representativa del fondo de la escena (sin el objeto, en la situación más parecida a las imágenes que se hicieron con el objeto).
 
+##### Lectura de imágenes del video
+```
+video = VideoReader(nombre);
+get(video);
+
+% Segundo a partir del cual comenzaremos a capturar imágenes
+inicio = 5;
+
+% Número de imágenes que vamos a capturar
+numIma = 18;
+
+%Tamaño del salto del vector para que capruremos el número de imágenes
+% que hemos indicado
+salto = floor((framesTotales-(videoFPS*inicio)) / numIma);
+
+% Matriz donde almacenaremos todas las imágenes
+imagenes = []; 
+imagenes = uint8(imagenes);
+
+close all
+
+disp('....');
+disp('CARGANDO imágenes capturadas');
+%disp('pulse cualquier tecla para avanzar...');
+frame = (videoFPS*inicio);
+for i=1:(numIma-1)
+    I = read(video,frame);
+    imagenes(:,:,:,i) = I;
+    imshow(imagenes(:,:,:,i)), title(['Imagen : ' num2str(i)])
+    pause
+    frame = frame+salto;
+end
+
+% Añadimos la imagen correspondiente al penúltimo frame, que es donde
+% el objeto será de menor tamaño (según como hemos grabado los vídeos)
+I = read(video,framesTotales-1);
+imagenes(:,:,:,numIma) = I;
+imshow(imagenes(:,:,:,numIma)), title(['Imagen : ' num2str(numIma)])
+
+%close all;
+disp('TERMINADO de cargar imágenes');
+```
+<img src="imagenes/README/imagenes.gif"/>
+
+##### Guardado de imágenes en paquete .mat
+````
+disp('....');
+disp('GUARDANDO archivo .mat');
+save('ImagenesEntrenamiento_Calibracion.mat','imagenes');
+disp('ARCHIVO GUARDADO');
+````
 ___
 
 # 2. Generación de conjunto de datos
