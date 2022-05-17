@@ -48,7 +48,47 @@ videoFPS = 10;
 % para que se grabe a la cantidad de FPS deseada
 intervalo = camaraFPS/videoFPS;
 ```
-<img src="imagenes/README/1.png" width="300px"/>
+<img src="imagenes/README/1.png" width="400px"/>
+
+##### Generación de archivo de video
+```
+% Nombre que le vamos a poner al archivo.avi que vamos a generar
+nombre = '01_Color.avi';
+
+% Duración deseada del vídeo que grabaremos
+duracion = 30;
+
+% Número de frames que debemos capturar para que se cumpla la duración
+% que hemos indicado
+framesTotales = duracion*videoFPS;
+
+%video = videoinput('winvideo',1,'YUY2_320x240');
+%video.TriggerRepeat = inf;
+video.FrameGrabInterval = intervalo;
+video.ReturnedColorSpace = 'rgb';
+
+set(video,'LoggingMode','memory');
+
+avi = VideoWriter(nombre,'Uncompressed AVI');
+avi.FrameRate = videoFPS;
+
+frames = 0;
+disp('....');
+disp('ENCENDIENDO cámara para grabación de video');
+open(avi)
+start(video)
+while video.FramesAcquired < framesTotales
+    I = getdata(video,1);
+    writeVideo(avi,I);
+    imshow(I),title(['Duración: ' num2str(frames/videoFPS)])
+    frames = frames+1;
+end
+stop(video)
+close(avi)
+close all;
+disp('APAGANDO cámara');
+```
+<img src="imagenes/README/grabacion.gif"/>
 
 ## 1.2. Imágenes de calibración:
 Capturar varias imágenes con el objeto situado en distintas posiciones representativas de la región del espacio que queramos monitorizar, así como una imagen representativa del fondo de la escena (sin el objeto, en la situación más parecida a las imágenes que se hicieron con el objeto).
