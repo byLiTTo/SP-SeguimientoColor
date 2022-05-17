@@ -13,7 +13,7 @@ no está permitido utilizar la función de Matlab *kmeans*, se debe implementar 
 1. Se eligen k muestras del conjunto de datos para que actúen como semillas. Estas semillas definen las k clases en las que se pretenden agrupar los datos.
 
 _Inicio de inicio del algoritmo: se asume que cada muestra está descrita por dos atributos A1 y A2 (espacio de observaciones bidimensional definido por estos atributos)_   
-<img src="imagenes/1.png"/>
+<img src="imagenes/Anexo/1.png"/>
 
 2. Cada muestra del conjunto de datos se añade a la clase más similar (por ejemplo, la muestra se asocia a la clase que se encuentre más cerca en el espacio de observaciones).
 
@@ -22,13 +22,13 @@ _Inicio de inicio del algoritmo: se asume que cada muestra está descrita por do
 4. Se repiten los puntos 2 y 3 hasta que se llega a un criterio de convergencia (por ejemplo, dos iteraciones no cambian las clasificaciones de las muestras)
 
 _Ejemplo de primera iteración (pasos 2 y 3): cada muestra se asocia a la semilla que tiene más carca y se calculan los centroides de cada agrupación resultante._   
-<img src="imagenes/2.png"/>
+<img src="imagenes/Anexo/2.png"/>
 
 _Ejemplo de segunda iteración_   
-<img src="imagenes/3.png"/>
+<img src="imagenes/Anexo/3.png"/>
 
 _Ejemplo de agrupamiento final_   
-<img src="imagenes/4.png"/>
+<img src="imagenes/Anexo/4.png"/>
 
 ___
 
@@ -36,7 +36,7 @@ ___
     [idx, centroides] = funcion_kmeans(X, k)
 
 Sea un conjunto de datos compuesto por n instancias (observaciones, muestras, ejemplos) descritas por un vector de atributos p-dimensional:   
-<img src="imagenes/5.png"/>
+<img src="imagenes/Anexo/5.png"/>
 
 ## Entradas y salidas:
 - *X*: matriz de n filas y p columnas; cada fila almacena los valores de los atributos de una determinada muestra (cada atributo se corresponde con una columna)

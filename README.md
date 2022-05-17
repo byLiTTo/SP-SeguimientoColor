@@ -11,9 +11,45 @@ Generar una secuencia de video que muestre el seguimiento de un objeto de una es
 ___
 
 # 1. Generación de material
-El código se encuentra en el script de la carpeta `01_GeneracionMaterial`.
+El código se encuentra en el script de la carpeta [01_GeneracionMaterial](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/01_GeneracionMaterial/GeneracionMaterial.m).
 ## 1.1. Secuencia de video para evaluar el funcionamiento del algoritmo de seguimiento:
 Generar un archivo de video con el objeto de estudio moviéndose por una determinada región del espacio.
+
+##### Obtención de FPS de la cámara
+```
+video = videoinput('winvideo',1,'YUY2_320x240');
+video.TriggerRepeat = inf;
+video.FrameGrabInterval = 1;
+
+TIEMPO = [];
+
+disp('ACTIVANDO cámara para cálculo de FPS');
+start(video)
+while video.FramesAcquired < 300
+    [I TIME] = getdata(video,1);
+    TIEMPO = [TIEMPO; TIME];
+end
+stop(video)
+flushdata(video);
+disp('APAGANDO cámara');
+
+% Contador donde obtendremos los FPS a los que trabaja nuestra cámara
+camaraFPS = 0;
+for i=1:length(TIEMPO)
+    if floor(TIEMPO(i)) == 1
+        camaraFPS = camaraFPS+1;
+    end
+end
+
+% Número de FPS a los que queremos que se grabe el vídeo
+videoFPS = 10;
+
+% Intervalo de captura de cada frame al que debe trabajar el vídeo,
+% para que se grabe a la cantidad de FPS deseada
+intervalo = camaraFPS/videoFPS;
+```
+<img src="imagenes/README/1.png"/>
+
 ## 1.2. Imágenes de calibración:
 Capturar varias imágenes con el objeto situado en distintas posiciones representativas de la región del espacio que queramos monitorizar, así como una imagen representativa del fondo de la escena (sin el objeto, en la situación más parecida a las imágenes que se hicieron con el objeto).
 
@@ -71,7 +107,7 @@ Para ello, se deben agrupar los datos disponibles para el color de seguimiento y
 
 ## 3.2. Entrenamiento del clasificador: Calibración y ajuste de parámetros.
 **Parámetros de calibración:**
-**Umbrales de distancia Euclidea (radios de las superficies esféricas):** el algoritmo de seguimiento calculará la distancia Euclidea de todos los píxeles de la imagen respecto a los centros de las superficies esféricas consideradas; considerará que los píxeles cuyas componentes de color se desvíen menos de una distancia umbral respecto al centro de cualquier esfera considerada, son de ese color. Hay que encontrar valores apropiados para estos umbrales de distancia.
+**Umbrales de distancia Euclidea (radios de las superficies esféricas):** el algoritmo de seguimiento calculará la distancia Euclidea de todos los píxeles de la imagen respecto a los centros de las superficies esféricas consideradas; considerará que los píxeles cuyas componentes de color se desvíen menos de una distancia umbral respecto al centro de cualquier esfera considerada, son de ese color. Hay que encontrar valores apropiados para estos umbrales de distancia.⁄
 
 **Umbral de conectividad:** el paso anterior decide valores adecuados de umbral de distancia y da lugar a una imagen binaria resultado de umbralizar medidas de distancia. A continuación, el algoritmo descartará aquellas componentes conexas cuyo número de píxeles sea inferior a uno dado. Hay que ajustar este parámetro.
 
