@@ -76,7 +76,7 @@ close all
 X = double([DatosColor(:,2:end) ; DatosFondo(:,2:end) ]);
 Y = [ones(size(DatosColor,1),1) ; zeros(size(DatosFondo,1),1) ];
 
-save('./VariablesGeneradas/conjunto_de_datos_original_amarillo', 'X', 'Y')
+save('./VariablesGeneradas/conjunto_de_datos_original', 'X', 'Y')
 
 % =========================================================================
 % 2.2. Representación de los datos del color objeto de seguimiento y otros del fondo de la escena
@@ -86,7 +86,7 @@ save('./VariablesGeneradas/conjunto_de_datos_original_amarillo', 'X', 'Y')
 clear all
 close all
 clc
-load('./VariablesGeneradas/conjunto_de_datos_original_amarillo.mat')
+load('./VariablesGeneradas/conjunto_de_datos_original.mat')
 representa_datos_color_seguimiento_fondo(X,Y), title('Gráfica original');
 
 % =========================================================================
@@ -107,7 +107,7 @@ representa_datos_color_seguimiento_fondo(X,Y), title('Gráfica sin outliers');
 
 %% GUARDADO DE LA INFORMACIÓN DEL CONJUNTO DE DATOS    
     
-save('./VariablesGeneradas/conjunto_de_datos_amarillo', 'X', 'Y')
+save('./VariablesGeneradas/conjunto_de_datos', 'X', 'Y')
 
 %% LIMPIAR RUTAS AÑADIDAS
 
