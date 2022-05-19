@@ -216,18 +216,97 @@ save('./VariablesGeneradas/conjunto_de_datos_original_amarillo', 'X', 'Y')
 Con un rango de variación 0-255 en los tres ejes, todos los valores RGB de los píxeles del color de seguimiento y del fondo de la escena. En la representación, utilizar distintos colores para distinguir las dos clases consideradas: color de seguimiento, color/es de fondo.
 
 Para la representación hacemos uso de la función que hemos implementado [representa_datos_color_seguimiento_fondo(X,Y)](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/Funciones/representa_datos_color_seguimiento_fondo.m)
+````
+function representa_datos_color_seguimiento_fondo(X,Y)
+    [numDatos, numAtributos] = size(X);
+    valoresY = unique(Y);
+    numClases = length(valoresY);
+    
+    filasColor = Y == valoresY(2);
+
+    ValoresR = X(filasColor,1);
+    ValoresG = X(filasColor,2);
+    ValoresB = X(filasColor,3);
+
+    figure, plot3(ValoresR, ValoresG, ValoresB, '.r')
+
+    % Añadir los valores RGB de los pixeles de fondo en otro color
+    filasFondo = Y == valoresY(1);
+
+    ValoresR = X(filasFondo,1);
+    ValoresG = X(filasFondo,2);
+    ValoresB = X(filasFondo,3);
+
+    hold on, plot3(ValoresR, ValoresG, ValoresB, '.b')
+
+    xlabel('Componente ROJA'), ylabel('Componente VERDE'), zlabel('Componente AZUL')
+    ValorMin = 0; ValorMax = 255; axis([ValorMin ValorMax ValorMin ValorMax ValorMin ValorMax]);
+    legend('Datos Color', 'Datos Fondo')
+end
+````
 
 ## 2.3. Eliminación de valores atípicos en los datos del color de seguimiento
 ### 2.3.1. Eliminar valores atípicos o outliers en las muestras de X correspondientes a los píxeles del color de seguimiento.
 Para ello, se eliminará una instancia completa de esta clase de salida (color de seguimiento) si el valor de cualquiera de sus atributos está fuera de su rango “normal” de variación. Este rango se define para cada atributo como la media más menos tres veces la desviación estándar de sus valores.
 
 Para eliminar los valores atípicos hemos creado la función: [funcion_detecta_outliers_clase_interes(X,Y)](https://github.com/byLiTTo/SP-SeguimientoColor/blob/main/02_Extraer_Representar_Datos/Funciones/funcion_detecta_outliers_clase_interes.m)
+````
+function pos_outliers = funcion_detecta_outliers_clase_interes(X,Y)
+    valoresY = unique(Y);
+
+    R = X(:,1);
+    G = X(:,2);
+    B = X(:,3);
+
+    FoI = Y == valoresY(2);     % FILAS DE LA CLASE DE INTERÉS
+
+    % Calculo de la media y desviación típica de en R, G y B de la clase de
+    % interés
+
+    medias = mean(X(FoI,:)) ; desv = std(X(FoI,:));
+    Rmean = medias(1); Rstd = desv(1);  % SIEMPRE REPRESENTATIVOS DE LA CLASE DE INTERÉS
+    Gmean = medias(2); Gstd = desv(2);  
+    Bmean = medias(3); Bstd = desv(3);
+
+    factor_outlier = 3;
+    % Consideramos que una instancia es un outlier si en cualquiera de sus
+    % atributos, el valor está fuera del rango:
+    % [media_atributo - 3*sigma_atributo, media_atributo + 3*sigma_atributo]
+
+    outR = (R > Rmean + factor_outlier*Rstd) | (R < Rmean - factor_outlier*Rstd); 
+    outG = (G > Gmean + factor_outlier*Gstd) | (G < Gmean - factor_outlier*Gstd); 
+    outB = (B > Bmean + factor_outlier*Bstd) | (B < Bmean - factor_outlier*Bstd);
+
+    % UNICAMENTE VALIDAMOS LOS OUTLIERS DE LAS FILAS DE LA CLASE
+
+    outR = and(FoI,outR);
+    outG = and(FoI,outG);
+    outB = and(FoI,outB);
+    
+    % UN OUTLIER ES UNA INSTANCIA QUE TIENE UN 1 BINARIO EN CUALQUIERA DE
+    % ESOS CANALES
+    
+    outR_G = or(outR,outG);
+    out_R_G_B = or(outR_G,outB);
+    
+    % CALCULAMOS LAS POSICIONES DE LOS OUTLIERS DETECTADOS
+    
+    pos_outliers = find(out_R_G_B);
+end
+````
+
 ### 2.3.2. Generar el conjunto de datos final X e Y:
 Sin outliers en la clase del color de seguimiento (las instancias anómalas eliminadas de X también han de eliminarse en Y).
+````
+pos_outliers = funcion_detecta_outliers_clase_interes(X,Y);
+X(pos_outliers,:) = [];
+Y(pos_outliers) = [];
+````
+
 ### 2.3.3. Representar en el espacio RGB todos los valores RGB
 De los píxeles del color de seguimiento y del fondo de la escena del conjunto de datos final, distinguiendo las muestras del color de seguimiento y las del fondo de la escena.
 
-Las gráficas generadas en estos pasos se visualizarían de la siguiente forma:
+Las gráficas generadas en estos pasos se visualizarían de la siguiente forma, en Figure 1 podemos observar la gráfica original y a la derecha, Figure 2, los valores una vez extraidos los outliers:
 <img src="imagenes/README/grafica_original.gif" width="400px"/> <img src="imagenes/README/grafica_sin_outliers.gif" width="400px"/>
 
 ___
@@ -262,8 +341,8 @@ Para ello, se deben agrupar los datos disponibles para el color de seguimiento y
 <img src="imagenes/README/radio_compromiso.gif" width="400px"/>
 
 ## 3.2. Entrenamiento del clasificador: Calibración y ajuste de parámetros.
-**Parámetros de calibración:**
-**Umbrales de distancia Euclidea (radios de las superficies esféricas):** el algoritmo de seguimiento calculará la distancia Euclidea de todos los píxeles de la imagen respecto a los centros de las superficies esféricas consideradas; considerará que los píxeles cuyas componentes de color se desvíen menos de una distancia umbral respecto al centro de cualquier esfera considerada, son de ese color. Hay que encontrar valores apropiados para estos umbrales de distancia.⁄
+### Parámetros de calibración:
+**Umbrales de distancia Euclidea (radios de las superficies esféricas):** el algoritmo de seguimiento calculará la distancia Euclidea de todos los píxeles de la imagen respecto a los centros de las superficies esféricas consideradas; considerará que los píxeles cuyas componentes de color se desvíen menos de una distancia umbral respecto al centro de cualquier esfera considerada, son de ese color. Hay que encontrar valores apropiados para estos umbrales de distancia.
 
 **Umbral de conectividad:** el paso anterior decide valores adecuados de umbral de distancia y da lugar a una imagen binaria resultado de umbralizar medidas de distancia. A continuación, el algoritmo descartará aquellas componentes conexas cuyo número de píxeles sea inferior a uno dado. Hay que ajustar este parámetro.
 
@@ -275,15 +354,7 @@ para cada una de las imágenes de calibración y varios valores posibles de umbr
 - Visualizar, sobre la imagen original, el resultado de la detección.
 - Analizar las gráficas, crear nuevas con otros valores de umbrales si fuese necesario y decidir un valor de umbral apropiado.
 
-### 3.2.2. Procedimiento de ajuste de umbral de conectividad:
-para cada una de las imágenes de calibración y varios valores posibles de umbral de conectividad (en este caso es una referencia útil saber el número de píxeles que tiene el objeto de seguimiento en su posición más alejada, que es cuando tiene menor tamaño):
-- Calcular las matrices de distancias y binarizarlas con los umbrales seleccionados.
-- Eliminar las componentes conexas más pequeñas de acuerdo al umbral de
-conectividad.
-- Visualizar sobre la imagen original el resultado de este proceso de filtrado.
-- Analizar las gráficas, crear nuevas con otros valores de conectividad si fuese necesario y decidir un valor de umbral apropiado.
-
-### 3.2.3. Guardar en una variable matlab los parámetros de calibración:
+### 3.2.2. Guardar en una variable matlab los parámetros de calibración:
 color medio de seguimiento, valores elegidos de umbral de distancia y conectividad.
 
 ___
