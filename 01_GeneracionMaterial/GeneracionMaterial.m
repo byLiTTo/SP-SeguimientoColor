@@ -16,15 +16,16 @@ video.FrameGrabInterval = 1;
 
 TIEMPO = [];
 
-disp('ACTIVANDO cámara para cálculo de FPS');
+disp('ACTIVANDO cámara para cálculo de FPS...');
 start(video)
 while video.FramesAcquired < 300
     [I TIME] = getdata(video,1);
     TIEMPO = [TIEMPO; TIME];
+    disp('.')
 end
 stop(video)
 flushdata(video);
-disp('APAGANDO cámara');
+disp('APAGANDO cámara...');
 
 % Contador donde obtendremos los FPS a los que trabaja nuestra cámara
 camaraFPS = 0;
@@ -72,57 +73,57 @@ while video.FramesAcquired < framesTotales
     I = getdata(video,1);
     writeVideo(avi,I);
     imshow(I),title(['Duración: ' num2str(frames/videoFPS)])
+    disp(['Duración: ' num2str(frames/videoFPS)])
     frames = frames+1;
 end
 stop(video)
 close(avi)
 close all;
+clc
 disp('APAGANDO cámara');
     
 % =========================================================================
 % 1.2 Imágenes de calibración
 % =========================================================================
-%% LECTURA DE LAS IMÁGENES DEL VÍDEO
+%% GENERACION DE IMAGENES DE CALIBRACION
 
-video = VideoReader(nombre);
-get(video);
+%video = videoinput('winvideo',1,'YUY2_320x240');
+%video.TriggerRepeat = inf;
+video.FrameGrabInterval = intervalo;
+video.ReturnedColorSpace = 'rgb';
 
-% Segundo a partir del cual comenzaremos a capturar imágenes
-inicio = 5;
+set(video,'LoggingMode','memory');
 
-% Número de imágenes que vamos a capturar
+% Numero de imagenes totales
 numIma = 18;
-
-%Tamaño del salto del vector para que capruremos el número de imágenes
-% que hemos indicado
-salto = floor((framesTotales-(videoFPS*inicio)) / numIma);
+capturas = 0;
 
 % Matriz donde almacenaremos todas las imágenes
 imagenes = []; 
 imagenes = uint8(imagenes);
 
-close all
+% Duración del temporizador antes de capturar la foto
+duracion = 5;
 
-disp('....');
-disp('CARGANDO imágenes capturadas');
-%disp('pulse cualquier tecla para avanzar...');
-frame = (videoFPS*inicio);
-for i=1:(numIma-1)
-    I = read(video,frame);
+% Número de frames que debemos capturar para que se cumpla la duración
+% que hemos indicado
+framesTotales = duracion*videoFPS;
+
+disp('ENCENDIENDO CAMARA...')
+disp('Tienes 5s de temporizador para hacer las fotos')
+for i=1:numIma
+    frames = 0;
+    start(video)
+    while  video.FramesAcquired < framesTotales
+        I = getdata(video,1);
+        imshow(I),title(['FOTO: ' num2str(i) '/' num2str(numIma) ' - ' num2str(frames/videoFPS)])
+        frames = frames + 1; 
+    end
     imagenes(:,:,:,i) = I;
-    imshow(imagenes(:,:,:,i)), title(['Imagen : ' num2str(i)])
-    pause
-    frame = frame+salto;
+    stop(video) 
 end
-
-% Añadimos la imagen correspondiente al penúltimo frame, que es donde
-% el objeto será de menor tamaño (según como hemos grabado los vídeos)
-I = read(video,framesTotales-1);
-imagenes(:,:,:,numIma) = I;
-imshow(imagenes(:,:,:,numIma)), title(['Imagen : ' num2str(numIma)])
-
-%close all;
-disp('TERMINADO de cargar imágenes');
+disp(' APAGANDO CAMARA...')
+close all;
     
 %% GUARDADO DE LAS IMÁGENES EN PAQUETE .MAT
     

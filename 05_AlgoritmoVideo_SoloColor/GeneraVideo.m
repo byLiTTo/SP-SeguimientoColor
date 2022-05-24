@@ -1,25 +1,27 @@
 % Fase 5: Generación de video
 
-    clear
-    close all
-    clc
+clear
+close all
+clc
     
-%% RUTAS A DIRECTORIOS Y CARGA DE INFORMACIÓN
+%% RUTAS A DIRECTORIOS
 
-    addpath('../01_GeneracionMaterial');
-    addpath('../04_AjusteClasificador_ImgCalib/VariablesGeneradas');
-    
-    addpath('Funciones');
-    
-    load parametros_clasificador_amarillo.mat
+addpath('../01_GeneracionMaterial');
+addpath('../04_AjusteClasificador_ImgCalib/VariablesGeneradas');
+
+addpath('Funciones');
+
+%% CARGA DE INFORMACIÓN
+
+load parametros_clasificador.mat
     
 %% LECTURA VIDEO ENTRADA (original)
 
-    nombre_archivo_video_entrada = '01_ColorAmarillo.avi';
-    videoInput = VideoReader(nombre_archivo_video_entrada);
+nombre_archivo_video_entrada = '01_Color.avi';
+videoInput = VideoReader(nombre_archivo_video_entrada);
 
-    [numFrames, numFilasFrame, numColumnasFrame, FPS] = ...
-        carga_video_entrada(videoInput);
+[numFrames, numFilasFrame, numColumnasFrame, FPS] = ...
+    carga_video_entrada(videoInput);
     
 %% GENERACIÓN VIDEO SALIDA
 
@@ -30,7 +32,7 @@
     open(videoOutput);
 
     % Color con el que se representará el centroide
-    color = [0 0 255];
+    color = [255 0 0];
     
     for i=1:numFrames
         I=read(videoInput,i);
@@ -63,6 +65,13 @@
     end
 
     close(videoOutput);
+
+%% RUTAS A DIRECTORIOS
+
+rmpath('../01_GeneracionMaterial');
+rmpath('../04_AjusteClasificador_ImgCalib/VariablesGeneradas');
+
+rmpath('Funciones');
     
     
     
