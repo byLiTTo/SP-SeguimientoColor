@@ -109,6 +109,13 @@ duracion = 5;
 % que hemos indicado
 framesTotales = duracion*videoFPS;
 
+% Por defecto se realizaran 18 fotos, de las cuales, las 4 primeras estan
+% pensadas para hacerlas sin que aparezca el objeto y el resto, imagenes
+% donde aparezca el objeto en diferentes posiciones y distancias con
+% respecto a la camara
+%
+% Para cada foto, por defecto se tiene un temporizador de 5 segundos.
+
 disp('ENCENDIENDO CAMARA...')
 disp('Tienes 5s de temporizador para hacer las fotos')
 for i=1:numIma
