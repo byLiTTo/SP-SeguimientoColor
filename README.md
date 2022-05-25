@@ -16,38 +16,7 @@ El código que se muestra en este apartado, pertenece al script de la carpeta [0
 Generar un archivo de video con el objeto de estudio moviéndose por una determinada región del espacio.
 
 ##### Obtención de FPS de la cámara
-```
-video = videoinput('winvideo',1,'YUY2_320x240');
-video.TriggerRepeat = inf;
-video.FrameGrabInterval = 1;
 
-TIEMPO = [];
-
-disp('ACTIVANDO cámara para cálculo de FPS');
-start(video)
-while video.FramesAcquired < 300
-    [I TIME] = getdata(video,1);
-    TIEMPO = [TIEMPO; TIME];
-end
-stop(video)
-flushdata(video);
-disp('APAGANDO cámara');
-
-% Contador donde obtendremos los FPS a los que trabaja nuestra cámara
-camaraFPS = 0;
-for i=1:length(TIEMPO)
-    if floor(TIEMPO(i)) == 1
-        camaraFPS = camaraFPS+1;
-    end
-end
-
-% Número de FPS a los que queremos que se grabe el vídeo
-videoFPS = 10;
-
-% Intervalo de captura de cada frame al que debe trabajar el vídeo,
-% para que se grabe a la cantidad de FPS deseada
-intervalo = camaraFPS/videoFPS;
-```
 <img src="imagenes/README/1.png" width="400px"/>
 
 ##### Generación de archivo de video
@@ -93,49 +62,6 @@ disp('APAGANDO cámara');
 ## 1.2. Imágenes de calibración:
 Capturar varias imágenes con el objeto situado en distintas posiciones representativas de la región del espacio que queramos monitorizar, así como una imagen representativa del fondo de la escena (sin el objeto, en la situación más parecida a las imágenes que se hicieron con el objeto).
 
-##### Lectura de imágenes del video
-```
-video = VideoReader(nombre);
-get(video);
-
-% Segundo a partir del cual comenzaremos a capturar imágenes
-inicio = 5;
-
-% Número de imágenes que vamos a capturar
-numIma = 18;
-
-%Tamaño del salto del vector para que capruremos el número de imágenes
-% que hemos indicado
-salto = floor((framesTotales-(videoFPS*inicio)) / numIma);
-
-% Matriz donde almacenaremos todas las imágenes
-imagenes = []; 
-imagenes = uint8(imagenes);
-
-close all
-
-disp('....');
-disp('CARGANDO imágenes capturadas');
-%disp('pulse cualquier tecla para avanzar...');
-frame = (videoFPS*inicio);
-for i=1:(numIma-1)
-    I = read(video,frame);
-    imagenes(:,:,:,i) = I;
-    imshow(imagenes(:,:,:,i)), title(['Imagen : ' num2str(i)])
-    pause
-    frame = frame+salto;
-end
-
-% Añadimos la imagen correspondiente al penúltimo frame, que es donde
-% el objeto será de menor tamaño (según como hemos grabado los vídeos)
-I = read(video,framesTotales-1);
-imagenes(:,:,:,numIma) = I;
-imshow(imagenes(:,:,:,numIma)), title(['Imagen : ' num2str(numIma)])
-
-%close all;
-disp('TERMINADO de cargar imágenes');
-```
-<img src="imagenes/README/imagenes.gif"/>
 
 ##### Guardado de imágenes en paquete .mat
 ````
@@ -227,13 +153,7 @@ function representa_datos_color_seguimiento_fondo(X,Y)
     ValoresR = X(filasColor,1);
     ValoresG = X(filasColor,2);
     ValoresB = X(filasColor,3);
-
-    figure, plot3(ValoresR, ValoresG, ValoresB, '.r')
-
-    % Añadir los valores RGB de los pixeles de fondo en otro color
-    filasFondo = Y == valoresY(1);
-
-    ValoresR = X(filasFondo,1);
+    
     ValoresG = X(filasFondo,2);
     ValoresB = X(filasFondo,3);
 
