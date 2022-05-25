@@ -14,7 +14,7 @@ addpath('../01_GeneracionMaterial')
 load ImagenesEntrenamiento_Calibracion.mat
 [N M numComp numImag] = size(imagenes);
 
-% Vemos las imagenesx
+% Vemos las imagenes
 for i=1:numImag
     imshow(imagenes(:,:,:,i)),title(['Imagen: ' num2str(i)])
     pause
@@ -26,24 +26,21 @@ close all
 % =========================================================================
 %% SELECCIONAR REGIÓN DE COLORES DE FONDO
 
-numImagFondo = 2;
-veces = 2;
+numImagFondo = 4;
 
 DatosFondo = [];
-for i=1:numImagFondo
-    for j=1:veces
-        I = imagenes(:,:,:,i);
+for i=1:numImagFondo 
+    I = imagenes(:,:,:,i);
 
-        R = I(:,:,1);
-        G = I(:,:,2);
-        B = I(:,:,3);
+    R = I(:,:,1);
+    G = I(:,:,2);
+    B = I(:,:,3);
 
-        disp(['Imagen: ' num2str(i) '/' num2str(numImagFondo) ' Repeticion: ' num2str(j)]);
+    disp(['Imagen: ' num2str(i) '/' num2str(numImagFondo)]);
 
-        ROI = roipoly(I); 
+    ROI = roipoly(I); 
 
-        DatosFondo = [DatosFondo; i*ones(sum(ROI(:)),1) R(ROI) G(ROI) B(ROI) ];
-    end
+    DatosFondo = [DatosFondo; i*ones(sum(ROI(:)),1) R(ROI) G(ROI) B(ROI) ];
 end
 close all
 
@@ -54,17 +51,17 @@ close all
 
 DatosColor = [];
 for i=(numImagFondo+1):numImag
-I = imagenes(:,:,:,i);
-
-R = I(:,:,1);
-G = I(:,:,2);
-B = I(:,:,3);
-
- disp(['Imagen: ' num2str(i) '/' num2str(numImag)]);
-
-ROI = roipoly(I);
-
-DatosColor = [DatosColor; i*ones(sum(ROI(:)),1) R(ROI) G(ROI) B(ROI) ];
+    I = imagenes(:,:,:,i);
+    
+    R = I(:,:,1);
+    G = I(:,:,2);
+    B = I(:,:,3);
+    
+     disp(['Imagen: ' num2str(i) '/' num2str(numImag)]);
+    
+    ROI = roipoly(I);
+    
+    DatosColor = [DatosColor; i*ones(sum(ROI(:)),1) R(ROI) G(ROI) B(ROI) ];
 end
 close all
 
