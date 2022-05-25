@@ -61,7 +61,7 @@ close all
  
 % Elegimos el radio que mejores resultados nos ha dado en proporcion a
 % ruido/area de l objeto de seguimiento
-radio = 1;
+radio = 3;
 datosMultiplesEsferas_clasificador = datosMultiplesEsferas(:,[1:3 3+radio]);
     
 %% CALIBRACION DE PARAMETRO DE CONECTIVIDAD: nimPix
@@ -71,7 +71,7 @@ datosMultiplesEsferas_clasificador = datosMultiplesEsferas(:,[1:3 3+radio]);
 % ultima imagen, pero se puede cambiar manualmente. Debería de ser la
 % imagen donde el objeto de seguimiento salga lo más pequeño posible
 close all
-I_objeto_pos_mas_alejada = imagenes(:,:,:,12);
+I_objeto_pos_mas_alejada = imagenes(:,:,:,18);
 Ib = roipoly(I_objeto_pos_mas_alejada);
 numPixReferencia = sum(Ib(:));
 
