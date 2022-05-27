@@ -58,6 +58,43 @@ Generar una primera agrupación de los datos, *idx_semilla*, mediante la funció
 
 #### 3. Devolver la última agrupación y centroides obtenidos.
 
+````
+function idx = funcion_kmeans(X, k)
+    
+    % X: Matriz tipo double, cada fila es la descripcion matematica de una muestra
+    % k: numero de agrupaciones
+    
+    % 1.- Inicializacion: agrupacion inicial en el atributo de maxima por
+    % dispercion
+    
+    idx = funcion_agrupa_por_desviacion(X, k);
+    
+    if sum(unique(idx)>0) ~= k
+        for i=1:k-1
+            idx(i) = i;
+        end
+        idx(k:end) = k;
+    end
+
+    % Partimos de una agrupacion basada en particion en la componente de mayor distancia
+
+    % Implementamos algoritmo de agrupamiento
+    % Dada una agrupacion, calculamos centroides y volvemos a agrupar en base a
+    % ellos. Si la agrupacion resultante difiere de la de partida, repetimos
+    % operaciones. Cuando las agrupaciones no cambian, termina.
+
+    Matrices_iguales = false;
+
+    while ~(Matrices_iguales)
+        C = calcula_centroides(X, idx);
+        idx_new = genera_nueva_agrupacion(X,C);
+        Matrices_iguales = compara_matrices(idx,idx_new);
+        idx = idx_new;
+    end
+end
+````
+___
+
 ## Funciones auxiliares:
 ### 1. Función agrupa por el atributo de máxima desviación:
     idx = funcion_agrupa_por_desviacion(X, k)
@@ -68,16 +105,98 @@ generar una agrupación inicial de los datos para que la convergencia del algori
 - 1.3.- Recorrer cada uno de esos k intervalos e ir generando el vector de salida idx: todas las muestras de X que presenten valores del atributo de máxima dispersión dentro de los valores mínimo y máximo del intervalo bajo consideración, se etiquetan en idx con el número de intervalo.
 
 **Observación importante:** se debe garantizar que haya muestras de X en todos los intervalos; en caso de que un intervalo no contenga ninguna muestra de X, ampliar el valor máximo que define ese intervalo para que incluya al menos una muestra de X.
+````
+function idx = funcion_agrupa_por_desviacion(X, k)
+    idx = zeros(length(X),1);
+    
+    desv = std(X);
+    pos_atrib = desv == max(desv);
+    Xatrib = X(:,pos_atrib);
+        
+    intervalo = (max(Xatrib)- min(Xatrib))/k;
+    inicio = min(Xatrib);
+    siguiente = inicio+intervalo;
+    
+    for i=1:k
+        pos = find(Xatrib >= inicio & Xatrib < siguiente);
+        idx(pos) = i;
+        
+        inicio = siguiente;
+        siguiente = siguiente+intervalo+0.1;
+    end
+end
+````
 
 ### 2. Función calcula centroides de una determinada agrupación:
     centroides = funcion_calcula_centroides(X, idx)
 **Objetivo:** calcular la matriz de centroides (ver definición en la descripción de los parámetros de entrada de la función principal) de los datos X agrupados según *idx*.
+````
+function C = calcula_centroides(X, idx)
+    C = [];
+    
+    valoresIdx = unique(idx);
+    numIdx = length(valoresIdx);
+    
+    for i=1:numIdx
+        F = idx == valoresIdx(i);
+        valoresX = X(F,:);
+        mediaX = mean(valoresX);
+        
+        Rc = mediaX(1);
+        Gc = mediaX(2);
+        Bc = mediaX(3);
+        
+        C = [C; Rc Gc Bc];
+    end
+end
+````
 
 ### 3. Función calcula centroides de una determinada agrupación:
     idx = funcion_calcula_agrupacion(X, centroides)
 **Objetivo:** genera la agrupación de los datos X de acuerdo a centroides. Para ello,
 se debe asignar cada muestra de X al centroide más próximo según distancia Euclidea.
+````
+function idx = genera_nueva_agrupacion(X, C)
+    idx = zeros(length(X),1);
+    
+    [numAgrup numAtributos] = size(C);
+    [numMuestras numComponentes] = size(X);
+    
+    vectorDistancia = zeros(2,numMuestras);
+    
+    for i=1:numAgrup
+        P = C(i,:)';
+        Pamp = repmat(P,1,numMuestras);
+        NP = X(:,:)';
+        vectorDistancia(i,:) = sqrt(sum((Pamp-NP).^2));
+    end
+ 
+    distancia_min = min(vectorDistancia);
+    agrupacion = vectorDistancia == distancia_min;
+    agrupacion_columna = agrupacion';
+    
+    for i=1:numAgrup
+        idx(agrupacion_columna(:,i)) = i;
+    end
+    
+end
+````
 
 ### 4. Función compara matrices:
     varLogica = funcion_compara_matrices(matriz1, matriz2)
 donde *varLogica* toma el valor *True* si las matrices con iguales y *False* en caso contrario.
+````
+function varLogica = compara_matrices(m1, m2)
+    ERROR = double(m1)-double(m2);
+    
+    m = min(ERROR(:));
+    M = max(ERROR(:));
+    
+    if m==M && m==0
+        varLogica = true;
+    else
+        varLogica = false;
+    end
+end
+````
+___
