@@ -8,6 +8,12 @@ ___
 # Objetivo del trabajo
 Generar una secuencia de video que muestre el seguimiento de un objeto de una escena captada por una WebCam. El seguimiento se basará en el color del objeto y se visualizará a través de una marca en el centroide de cada agrupación conexa de píxeles detectada.
 
+### Ejemplo de resultados
+A continuación observamos cómo quedaría un video al que le hemos aplicado el algoritmo. En este caso se trata de un objeto de color azul, por lo que el centroide lo hemos representado de color rojo para una mayor claridad:
+<img src="imagenes/README/05_Color.gif">
+
+En el video hemos tratado de generar una zona de contraluz y una zona de sombras muy oscuras, para comprobar si el algoritmo era capaz de trabajar óptimamente en situación algo complejas en cuanto a iliminación.
+
 ___
 
 # 1. Generación de material
